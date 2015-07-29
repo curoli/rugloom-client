@@ -1,9 +1,26 @@
-@(title:String)
+@(title: String)
 
 <html>
     <head>
         <title>@title</title>
+        <style>
+        body {
+        background-color : black ;
+        color : yellow ;
+        font-family : sans-serif ;
+        }
+        </style>
+        <script>
+            var socket;
+            function openSocket() {
+                socket = new WebSocket("ws://localhost:9000/socket");
+                socket.onopen = function() { socket.send("Hello!"); };
+                socket.onmessage = function(event) { alert(event.data); };
+            }
+        </script>
     </head>
-    <h1>@title</h1>
-    <p>Hello, this is @title!</p>
+    <body onload="openSocket()">
+        <h1>@title</h1>
+        <p>Hello, this is @title!</p>
+    </body>
 </html>

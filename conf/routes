@@ -1,1 +1,2 @@
-GET     /     rugloom.web.controllers.RugLoomController.index
+GET        /           rugloom.web.controllers.RugLoomController.index
+GET        /socket     rugloom.web.controllers.RugLoomController.socket
