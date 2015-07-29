@@ -1,4 +1,4 @@
-package rugloom.web.controllers
+package rugloom.web.socket
 
 /**
  * Created by oliverr on 7/29/2015.

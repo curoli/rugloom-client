@@ -3,6 +3,7 @@ package rugloom.web.controllers
 import play.api.mvc.{WebSocket, Action, Controller}
 import rugloom.views.html.RugLoomView
 import play.api.Play.current
+import rugloom.web.socket.RugLoomSocketActor
 
 /**
  * Created by oliverr on 7/29/2015.
