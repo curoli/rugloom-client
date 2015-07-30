@@ -12,7 +12,7 @@ import rugloom.web.socket.Message.Kind
 object MessageJsonReading {
 
   implicit val timedIdReads: Reads[TimedId] =
-    ((JsPath \ "time").read[Long] and (JsPath \ "rand").read[Long])(TimedId(_, _))
+    ((JsPath \ "time").read[Long] and (JsPath \ "rand").read[Int])(TimedId(_, _))
 
   implicit val messageKindReads = new Reads[Message.Kind] {
     override def reads(json: JsValue): JsResult[Kind] = json match {

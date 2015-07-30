@@ -9,9 +9,10 @@ import scala.util.Random
  */
 object TimedId {
   val random = new Random()
-  def create : TimedId = TimedId(System.currentTimeMillis(), random.nextLong())
+
+  def create: TimedId = TimedId(System.currentTimeMillis(), random.nextInt())
 }
 
-case class TimedId(time:Long, rand:Long) {
+case class TimedId(time: Long, rand: Int) {
 
 }

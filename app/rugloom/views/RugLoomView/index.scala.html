@@ -12,7 +12,7 @@
         </style>
         <script>
             var socket;
-            var LARGE_INTEGER = 9e15;
+            var LARGE_INTEGER = 2e9;
             function createMessageId() {
                 return { time: Date.now(), rand: Math.round(2*LARGE_INTEGER*Math.random() - LARGE_INTEGER) };
             }
