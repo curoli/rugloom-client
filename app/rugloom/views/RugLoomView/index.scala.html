@@ -12,12 +12,27 @@
         </style>
         <script>
             var socket;
+            var LARGE_INTEGER = 9e15;
+            function createMessageId() {
+                return { time: Date.now(), rand: Math.round(2*LARGE_INTEGER*Math.random() - LARGE_INTEGER) };
+            }
+            function createPingMessage() {
+                var id = createMessageId();
+                return { id: id, kind: "ping" };
+            }
+            function createEchoMessage(pingMessage) {
+                var id = createMessageId();
+                return { id: id, kind: "echo", inResponseToId: pingMessage.id, inResponseToKind: pingMessage.kind };
+            }
             function openSocket() {
                 socket = new WebSocket("ws://localhost:9000/socket");
-                socket.onopen = function() { socket.send("Hello!"); };
+                socket.onopen = function() { socket.send(JSON.stringify(createPingMessage())); };
                 socket.onmessage = function(event) {
                     var msg = JSON.parse(event.data);
                     if(msg.kind == "ping") {
+                        alert("I have received a ping message.\n Time stamp: " + new Date(msg.id.time));
+                        socket.send(JSON.stringify(createEchoMessage(msg)))
+                    } else if(msg.kind == "echo") {
                         alert("I have received a ping message.\n Time stamp: " + new Date(msg.id.time));
                     } else {
                         alert("I have received a message I did not understand:\n" + JSON.stringify(msg, null, 2))

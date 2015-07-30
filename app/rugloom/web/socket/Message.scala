@@ -1,5 +1,6 @@
 package rugloom.web.socket
 
+import rugloom.util.{No, Yes, Maybe}
 import rugloom.web.socket.Message.Kind
 
 /**
@@ -10,9 +11,21 @@ object Message {
 
   sealed trait Kind
 
-  case object ping extends Kind
+  object Kind {
 
-  case object echo extends Kind
+    case object ping extends Kind
+
+    case object echo extends Kind
+
+    def apply(string: String): Maybe[Kind] = {
+      string match {
+        case "ping" => Yes(ping)
+        case "echo" => Yes(echo)
+        case _ => No("Unknown message kind '" + string + "'")
+      }
+    }
+
+  }
 
   trait Response extends Message {
     def inResponseToId: TimedId

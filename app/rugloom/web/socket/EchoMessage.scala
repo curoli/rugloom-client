@@ -12,7 +12,7 @@ object EchoMessage {
 
 case class EchoMessage(id: TimedId, inResponseToId: TimedId) extends Response {
 
-  override def inResponseToKind: Kind = Message.ping
+  override def inResponseToKind: Kind = Message.Kind.ping
 
-  override def kind: Kind = Message.echo
+  override def kind: Kind = Message.Kind.echo
 }

@@ -16,7 +16,7 @@ object RugLoomController extends Controller {
     Ok(RugLoomView.index("RugLoom"))
   }
 
-  def socket = WebSocket.acceptWithActor[String, JsValue] { request => out =>
+  def socket = WebSocket.acceptWithActor[JsValue, JsValue] { request => out =>
     RugLoomSocketActor.props(out)
   }
 

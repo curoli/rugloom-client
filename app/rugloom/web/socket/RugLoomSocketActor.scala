@@ -6,8 +6,9 @@ package rugloom.web.socket
  */
 
 import akka.actor.{Actor, Props, ActorRef}
-import play.api.libs.json.Json
+import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import rugloom.web.socket.MessageJsonWriting.pingMessageWrites
+import rugloom.web.socket.MessageJsonReading.messageReads
 
 object RugLoomSocketActor {
   def props(out: ActorRef) = Props(new RugLoomSocketActor(out))
@@ -15,12 +16,29 @@ object RugLoomSocketActor {
 
 class RugLoomSocketActor(out: ActorRef) extends Actor {
 
-  override def preStart() : Unit = {
+  override def preStart(): Unit = {
     out ! Json.toJson(PingMessage.create)
   }
 
   def receive = {
+    case json: JsValue =>
+      json.validate[Message] match {
+        case jsSuccess: JsSuccess[Message] =>
+          val message = jsSuccess.get
+          message match {
+            case pingMessage: PingMessage =>
+              println("I received a ping message: " + pingMessage)
+              println("I'm going to respond with echo.")
+              out ! EchoMessage.create(pingMessage)
+            case echoMessage: EchoMessage =>
+              println("I have received an echo message: " + echoMessage)
+            case _ =>
+              println("I have received an unknown type of message: " + message)
+          }
+        case jsError: JsError =>
+          println("There was a JsError: " + jsError)
+      }
     case msg: String =>
-      out ! Json.toJson(PingMessage.create)
+      println("I received a String, which should not happen.")
   }
 }

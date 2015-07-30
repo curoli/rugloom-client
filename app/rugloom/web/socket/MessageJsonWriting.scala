@@ -1,6 +1,6 @@
 package rugloom.web.socket
 
-import play.api.libs.json.{JsString, JsValue, JsObject, Json, Writes}
+import play.api.libs.json.{JsValue, JsObject, JsString, Json, Writes}
 import rugloom.web.socket.Message.Kind
 
 /**
@@ -31,9 +31,15 @@ object MessageJsonWriting {
     override def writes(echoMessage: EchoMessage): JsObject = Json.obj(
       "id" -> echoMessage.id,
       "kind" -> echoMessage.kind,
-      "inResponseToId" -> echoMessage.inResponseToId,
-      "inResponseToKind" -> echoMessage.inResponseToKind
+      "inResponseToId" -> echoMessage.inResponseToId
     )
+  }
+
+  implicit val messageWrites = new Writes[Message] {
+    override def writes(message: Message): JsValue = message match {
+      case pingMessage: PingMessage => Json.toJson(pingMessage)
+      case echoMessage: EchoMessage => Json.toJson(echoMessage)
+    }
   }
 
 }

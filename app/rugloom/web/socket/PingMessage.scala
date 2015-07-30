@@ -12,5 +12,5 @@ object PingMessage {
 }
 
 case class PingMessage(id: TimedId) extends Message {
-  override def kind: Kind = Message.ping
+  override def kind: Kind = Message.Kind.ping
 }
