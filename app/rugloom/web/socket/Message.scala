@@ -10,9 +10,9 @@ object Message {
 
   sealed trait Kind
 
-  object ping extends Kind
+  case object ping extends Kind
 
-  object echo extends Kind
+  case object echo extends Kind
 
   trait Response extends Message {
     def inResponseToId: TimedId

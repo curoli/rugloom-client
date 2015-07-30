@@ -15,7 +15,14 @@
             function openSocket() {
                 socket = new WebSocket("ws://localhost:9000/socket");
                 socket.onopen = function() { socket.send("Hello!"); };
-                socket.onmessage = function(event) { alert(event.data); };
+                socket.onmessage = function(event) {
+                    var msg = JSON.parse(event.data);
+                    if(msg.kind == "ping") {
+                        alert("I have received a ping message.\n Time stamp: " + new Date(msg.id.time));
+                    } else {
+                        alert("I have received a message I did not understand:\n" + JSON.stringify(msg, null, 2))
+                    }
+                };
             }
         </script>
     </head>
