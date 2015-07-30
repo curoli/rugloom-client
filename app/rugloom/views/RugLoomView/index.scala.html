@@ -10,6 +10,7 @@
         font-family : sans-serif ;
         }
         </style>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
         <script>
             var socket;
             var LARGE_INTEGER = 2e9;
@@ -30,19 +31,28 @@
                 socket.onmessage = function(event) {
                     var msg = JSON.parse(event.data);
                     if(msg.kind == "ping") {
-                        alert("I have received a ping message.\n Time stamp: " + new Date(msg.id.time));
+                        console.log("I have received a ping message.\n Time stamp: " + new Date(msg.id.time));
                         socket.send(JSON.stringify(createEchoMessage(msg)))
                     } else if(msg.kind == "echo") {
-                        alert("I have received a ping message.\n Time stamp: " + new Date(msg.id.time));
+                        console.log("I have received an echo message.\n Time stamp: " + new Date(msg.id.time));
                     } else {
-                        alert("I have received a message I did not understand:\n" + JSON.stringify(msg, null, 2))
+                        console.log("I have received a message I did not understand:\n" + JSON.stringify(msg, null, 2))
                     }
                 };
+            }
+            function onCommandKeyPress(event) {
+                var keyCode = event.keyCode || event.which;
+                if(keyCode == 13) {
+                    var commandInput = d3.select("#commandInput");
+                    alert(commandInput.property("value"));
+                    commandInput.property("value", "");
+                }
             }
         </script>
     </head>
     <body onload="openSocket()">
         <h1>@title</h1>
-        <p>Hello, this is @title!</p>
+        <p>Hello, this is @title! Enter a command and press enter.</p>
+        <input id="commandInput" type="text" size="100" onkeypress="onCommandKeyPress(event);"/>
     </body>
 </html>

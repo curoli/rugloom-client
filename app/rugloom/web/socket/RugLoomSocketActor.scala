@@ -5,10 +5,10 @@ package rugloom.web.socket
  * Actor to handle websocket communication
  */
 
-import akka.actor.{Actor, Props, ActorRef}
+import akka.actor.{Actor, ActorRef, Props}
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
-import rugloom.web.socket.MessageJsonWriting.pingMessageWrites
 import rugloom.web.socket.MessageJsonReading.messageReads
+import rugloom.web.socket.MessageJsonWriting.{echoMessageWrites, pingMessageWrites}
 
 object RugLoomSocketActor {
   def props(out: ActorRef) = Props(new RugLoomSocketActor(out))
@@ -29,7 +29,7 @@ class RugLoomSocketActor(out: ActorRef) extends Actor {
             case pingMessage: PingMessage =>
               println("I received a ping message: " + pingMessage)
               println("I'm going to respond with echo.")
-              out ! EchoMessage.create(pingMessage)
+              out ! Json.toJson(EchoMessage.create(pingMessage))
             case echoMessage: EchoMessage =>
               println("I have received an echo message: " + echoMessage)
             case _ =>
