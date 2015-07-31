@@ -13,6 +13,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
         <script>
             var socket;
+            var enteredLineNum = 0;
             var LARGE_INTEGER = 2e9;
             function createMessageId() {
                 return { time: Date.now(), rand: Math.round(2*LARGE_INTEGER*Math.random() - LARGE_INTEGER) };
@@ -24,6 +25,10 @@
             function createEchoMessage(pingMessage) {
                 var id = createMessageId();
                 return { id: id, kind: "echo", inResponseToId: pingMessage.id, inResponseToKind: pingMessage.kind };
+            }
+            function createLineEnteredMessage(line, num) {
+                var id = createMessageId();
+                return { id: id, kind: "lineEntered", line: line, num: num};
             }
             function openSocket() {
                 socket = new WebSocket("ws://localhost:9000/socket");
@@ -44,7 +49,13 @@
                 var keyCode = event.keyCode || event.which;
                 if(keyCode == 13) {
                     var commandInput = d3.select("#commandInput");
-                    alert(commandInput.property("value"));
+                    var lineEntered = commandInput.property("value");
+                    console.log("Line entered: " + lineEntered);
+                    enteredLineNum++;
+                    d3.select("#rugLoomConsole").append("div").attr("id", "rugLoomConsoleEntry"+enteredLineNum)
+                    .append("div").attr("class", "echo").text(lineEntered);
+                    var message = createLineEnteredMessage(lineEntered, enteredLineNum);
+                    socket.send(JSON.stringify(message));
                     commandInput.property("value", "");
                 }
             }
@@ -52,7 +63,8 @@
     </head>
     <body onload="openSocket()">
         <h1>@title</h1>
-        <p>Hello, this is @title! Enter a command and press enter.</p>
+        <p>Hello, this is @title! Enter an expression.</p>
+        <div id="rugLoomConsole"></div>
         <input id="commandInput" type="text" size="100" onkeypress="onCommandKeyPress(event);"/>
     </body>
 </html>

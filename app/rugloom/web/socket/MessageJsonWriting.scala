@@ -35,10 +35,20 @@ object MessageJsonWriting {
     )
   }
 
+  implicit val lineEnteredMessageWrites = new Writes[LineEnteredMessage] {
+    override def writes(lineEnteredMessage: LineEnteredMessage): JsObject = Json.obj(
+      "id" -> lineEnteredMessage.id,
+      "kind" -> lineEnteredMessage.kind,
+      "line" -> lineEnteredMessage.line,
+      "num" -> lineEnteredMessage.num
+    )
+  }
+
   implicit val messageWrites = new Writes[Message] {
     override def writes(message: Message): JsValue = message match {
       case pingMessage: PingMessage => Json.toJson(pingMessage)
       case echoMessage: EchoMessage => Json.toJson(echoMessage)
+      case lineEnteredMessage: LineEnteredMessage => Json.toJson(lineEnteredMessage)
     }
   }
 

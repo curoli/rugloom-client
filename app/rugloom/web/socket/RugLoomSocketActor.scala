@@ -32,6 +32,8 @@ class RugLoomSocketActor(out: ActorRef) extends Actor {
               out ! Json.toJson(EchoMessage.create(pingMessage))
             case echoMessage: EchoMessage =>
               println("I have received an echo message: " + echoMessage)
+            case lineEnteredMessage: LineEnteredMessage =>
+              println("I have received a line entered message: " + lineEnteredMessage)
             case _ =>
               println("I have received an unknown type of message: " + message)
           }
