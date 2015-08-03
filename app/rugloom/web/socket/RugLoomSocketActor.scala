@@ -7,14 +7,15 @@ package rugloom.web.socket
 
 import akka.actor.{Actor, ActorRef, Props}
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
+import rugloom.shell.RugLoomShell
 import rugloom.web.socket.MessageJsonReading.messageReads
 import rugloom.web.socket.MessageJsonWriting.{echoMessageWrites, pingMessageWrites}
 
 object RugLoomSocketActor {
-  def props(out: ActorRef) = Props(new RugLoomSocketActor(out))
+  def props(out: ActorRef, shell: RugLoomShell) = Props(new RugLoomSocketActor(out, shell))
 }
 
-class RugLoomSocketActor(out: ActorRef) extends Actor {
+class RugLoomSocketActor(out: ActorRef, shell: RugLoomShell) extends Actor {
 
   override def preStart(): Unit = {
     out ! Json.toJson(PingMessage.create)
@@ -33,7 +34,7 @@ class RugLoomSocketActor(out: ActorRef) extends Actor {
             case echoMessage: EchoMessage =>
               println("I have received an echo message: " + echoMessage)
             case lineEnteredMessage: LineEnteredMessage =>
-              println("I have received a line entered message: " + lineEnteredMessage)
+              shell.lineEntered(lineEnteredMessage.line)
             case _ =>
               println("I have received an unknown type of message: " + message)
           }
