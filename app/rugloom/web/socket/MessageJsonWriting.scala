@@ -3,6 +3,8 @@ package rugloom.web.socket
 import play.api.libs.json.{JsValue, JsObject, JsString, Json, Writes}
 import rugloom.web.socket.Message.Kind
 
+import scala.tools.nsc.interpreter.Results.Result
+
 /**
  * RugLoom - Explorative analysis pipeline prototype
  * Created by oliverr on 7/30/2015.
@@ -21,26 +23,43 @@ object MessageJsonWriting {
   }
 
   implicit val pingMessageWrites = new Writes[PingMessage] {
-    override def writes(pingMessage: PingMessage): JsObject = Json.obj(
-      "id" -> pingMessage.id,
-      "kind" -> pingMessage.kind
+    override def writes(message: PingMessage): JsObject = Json.obj(
+      "id" -> message.id,
+      "kind" -> message.kind
     )
   }
 
   implicit val echoMessageWrites = new Writes[EchoMessage] {
-    override def writes(echoMessage: EchoMessage): JsObject = Json.obj(
-      "id" -> echoMessage.id,
-      "kind" -> echoMessage.kind,
-      "inResponseToId" -> echoMessage.inResponseToId
+    override def writes(message: EchoMessage): JsObject = Json.obj(
+      "id" -> message.id,
+      "kind" -> message.kind,
+      "inResponseToId" -> message.inResponseToId
     )
   }
 
   implicit val lineEnteredMessageWrites = new Writes[LineEnteredMessage] {
-    override def writes(lineEnteredMessage: LineEnteredMessage): JsObject = Json.obj(
-      "id" -> lineEnteredMessage.id,
-      "kind" -> lineEnteredMessage.kind,
-      "line" -> lineEnteredMessage.line,
-      "num" -> lineEnteredMessage.num
+    override def writes(message: LineEnteredMessage): JsObject = Json.obj(
+      "id" -> message.id,
+      "kind" -> message.kind,
+      "line" -> message.line,
+      "num" -> message.num
+    )
+  }
+
+  implicit val resultReturnedWrites = new Writes[Result] {
+    override def writes(result: Result): JsString = new JsString(result.toString)
+  }
+
+  implicit val shellResponseMessageWrites = new Writes[ShellResponseMessage] {
+    override def writes(message: ShellResponseMessage): JsObject = Json.obj(
+      "id" -> message.id,
+      "kind" -> message.kind,
+      "inResponseToId" -> message.inResponseToId,
+      "num" -> message.response.num,
+      "line" -> message.response.lineEntered,
+      "resultReturned" -> message.response.resultReturned,
+      "resultLine" -> message.response.resultLineOpt,
+      "linesConsole" -> message.response.linesConsole
     )
   }
 

@@ -40,6 +40,10 @@
                         socket.send(JSON.stringify(createEchoMessage(msg)))
                     } else if(msg.kind == "echo") {
                         console.log("I have received an echo message.\n Time stamp: " + new Date(msg.id.time));
+                    } else if(msg.kind == "shellResponse") {
+                        console.log("I have received a shell response message.\n Time stamp: " +
+                            new Date(msg.id.time));
+                        alert(JSON.stringify(msg))
                     } else {
                         console.log("I have received a message I did not understand:\n" + JSON.stringify(msg, null, 2))
                     }

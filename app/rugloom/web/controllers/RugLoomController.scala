@@ -1,10 +1,9 @@
 package rugloom.web.controllers
 
-import play.api.libs.json.JsValue
-import play.api.mvc.{WebSocket, Action, Controller}
-import rugloom.shell.RugLoomShell
-import rugloom.views.html.RugLoomView
 import play.api.Play.current
+import play.api.libs.json.JsValue
+import play.api.mvc.{Action, Controller, WebSocket}
+import rugloom.views.html.RugLoomView
 import rugloom.web.socket.RugLoomSocketActor
 
 /**
@@ -18,7 +17,7 @@ object RugLoomController extends Controller {
   }
 
   def socket = WebSocket.acceptWithActor[JsValue, JsValue] { request => out =>
-    RugLoomSocketActor.props(out, new RugLoomShell)
+    RugLoomSocketActor.props(out)
   }
 
 }
