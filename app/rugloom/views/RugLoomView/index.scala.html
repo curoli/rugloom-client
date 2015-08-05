@@ -9,6 +9,15 @@
         color : yellow ;
         font-family : sans-serif ;
         }
+        pre {
+        font-family : Lucida Console, Lucida Sans Typewriter, monaco, Bitstream Vera Sans Mono, monospace ;
+        }
+        .lineEntered {
+        color : lightgreen ;
+        }
+        .consoleOut {
+        color : lightblue ;
+        }
         </style>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
         <script>
@@ -43,7 +52,11 @@
                 } else if(msg.kind == "shellResponse") {
                     console.log("I have received a shell response message.\n Time stamp: " +
                         new Date(msg.id.time));
-                    alert(JSON.stringify(msg))
+                    var entry = consoleEntries[msg.num];
+                    entry.line = msg.line;
+                    entry.resultReturned = msg.resultReturned;
+                    entry.consoleOut = msg.consoleOut;
+                    showConsoleEntries();
                 } else {
                     console.log("I have received a message I did not understand:\n" + JSON.stringify(msg, null, 2))
                 }
@@ -62,7 +75,10 @@
                 var entryDivs = d3.select("#rugLoomConsole").selectAll("div.consoleEntry").data(consoleEntries);
                 var newDivs = entryDivs.enter().append("div").attr("class", "consoleEntry")
                 .attr("id", function(d, i) { return consoleEntryId(i); });
-                newDivs.append("div").attr("class", "lineEntered").text(function(d) { return d.line; })
+                newDivs.append("div").attr("class", "lineEntered").append("pre");
+                newDivs.append("div").attr("class", "consoleOut").append("pre");
+                entryDivs.select(".lineEntered").select("pre").text(function(d) { return d.line; });
+                entryDivs.select(".consoleOut").select("pre").text(function(d) { return d.consoleOut; });
             }
             function onCommandKeyPress(event) {
                 var keyCode = event.keyCode || event.which;
@@ -72,9 +88,6 @@
                     console.log("Line entered: " + lineEntered);
                     var enteredLineNum = addConsoleEntry(lineEntered);
                     showConsoleEntries();
-//                    enteredLineNum++;
-//                    d3.select("#rugLoomConsole").append("div").attr("id", consoleEntryId(enteredLineNum))
-//                    .append("div").attr("class", "echo").text(lineEntered);
                     var message = createLineEnteredMessage(lineEntered, enteredLineNum);
                     socket.send(JSON.stringify(message));
                     commandInput.property("value", "");

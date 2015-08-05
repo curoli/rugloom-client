@@ -1,6 +1,6 @@
 package rugloom.shell
 
-import java.io.File
+import java.io.{PrintWriter, StringWriter, File}
 
 import scala.tools.nsc.Settings
 import scala.tools.nsc.interpreter.IMain
@@ -22,7 +22,9 @@ class RugLoomShell(val listener: ShellResponse.Listener) {
   val sbtClasspath = System.getProperty("rugloom.interpreter.classpath")
   //  println("rugloom.interpreter.classpath = " + sbtClasspath)
   settings.classpath.value = "." + File.pathSeparator + sbtClasspath
-  val imain = new IMain(settings)
+  val stringWriter = new StringWriter()
+  val printWriter = new PrintWriter(stringWriter)
+  val imain = new IMain(settings, printWriter)
 
   def safeCall(request: imain.Request, name: String): AnyRef = {
     try {
@@ -47,21 +49,18 @@ class RugLoomShell(val listener: ShellResponse.Listener) {
       val prevRequestList = imain.prevRequestList
       if (prevRequestList.nonEmpty) {
         val lastRequest = prevRequestList.last
-        Try(lastRequest.lineRep.call("$print")) match {
-          case Success(linePrinted) =>
-            response = response.withResultLine(linePrinted.asInstanceOf[String])
-            listener.responseReceived(response)
-          case Failure(ex) => {}
+        Try(lastRequest.lineRep.call("$result")) match {
+          case Success(result) =>
+            println("Result is: " + result)
+          case Failure(ex) => {
+            println("Exception thrown: " + ex)
+          }
         }
-        //        println("Last request: " + lastRequest)
-        //        println("Line rep: " + lastRequest.lineRep)
-        //
-        //        safePrintln(lastRequest, "$result")
-        //        safePrintln(lastRequest, "$read")
-        //        safePrintln(lastRequest, "$eval")
-        //        safePrintln(lastRequest, "$print")
-
       }
+      val buffer: StringBuffer = stringWriter.getBuffer
+      response = response.withConsoleOut(buffer.toString)
+      buffer.setLength(0)
+      listener.responseReceived(response)
     })
   }
 

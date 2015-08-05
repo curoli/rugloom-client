@@ -12,16 +12,11 @@ object ShellResponse {
     def responseReceived(response: ShellResponse)
   }
 
-  def apply(lineNumber: Int, lineEntered: String, resultReturned: Result): ShellResponse =
-    ShellResponse(lineNumber, lineEntered, resultReturned, None, Seq.empty[String])
-
 }
 
-case class ShellResponse(num: Int, lineEntered: String, resultReturned: Result, resultLineOpt: Option[String],
-                         linesConsole: Seq[String]) {
+case class ShellResponse(num: Int, lineEntered: String, resultReturned: Result, consoleOut: String = "") {
 
-  def withResultLine(resultLine: String): ShellResponse = copy(resultLineOpt = Some(resultLine))
+  def withConsoleOut(consoleOut: String): ShellResponse = copy(consoleOut = consoleOut)
 
-  def withOutLine(lineConsole: String): ShellResponse = copy(linesConsole = linesConsole :+ lineConsole)
 
 }
