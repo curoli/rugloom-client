@@ -14,9 +14,9 @@ object ShellResponse {
 
 }
 
-case class ShellResponse(num: Int, lineEntered: String, resultReturned: Result, consoleOut: String = "") {
+case class ShellResponse(num: Int, lineEntered: String, resultReturned: Result, reportOut: String = "") {
 
-  def withConsoleOut(consoleOut: String): ShellResponse = copy(consoleOut = consoleOut)
+  def withReportOut(consoleOut: String): ShellResponse = copy(reportOut = consoleOut)
 
 
 }

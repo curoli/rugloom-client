@@ -1,10 +1,9 @@
 package rugloom.shell
 
-import java.io.{PrintWriter, StringWriter, File}
+import java.io.{File, PrintWriter, StringWriter}
 
 import scala.tools.nsc.Settings
 import scala.tools.nsc.interpreter.IMain
-import scala.tools.nsc.interpreter.Results.Result
 import scala.util.{Failure, Success, Try}
 
 /**
@@ -12,34 +11,27 @@ import scala.util.{Failure, Success, Try}
  * Created by oliverr on 7/31/2015.
  */
 object RugLoomShell {
-
-
 }
 
 class RugLoomShell(val listener: ShellResponse.Listener) {
+
 
   val settings = new Settings
   val sbtClasspath = System.getProperty("rugloom.interpreter.classpath")
   //  println("rugloom.interpreter.classpath = " + sbtClasspath)
   settings.classpath.value = "." + File.pathSeparator + sbtClasspath
+  settings.embeddedDefaults[RugLoomShell]
   val stringWriter = new StringWriter()
   val printWriter = new PrintWriter(stringWriter)
   val imain = new IMain(settings, printWriter)
 
-  def safeCall(request: imain.Request, name: String): AnyRef = {
-    try {
-      request.lineRep.call(name)
-    }
-    catch {
-      case e: Exception => e
-    }
-  }
 
-  def safePrintln(request: imain.Request, name: String): Unit = {
-    val x = safeCall(request, name)
-    val clazz = if (x != null) x.getClass else null
-    println(name + " = " + x + " (" + clazz + ")")
-  }
+  val greeting = "Hello, World!"
+
+  val predef = new Predef
+
+  imain.bind("predef", "rugloom.shell.Predef", predef)
+  imain.interpret("import predef._")
 
   def lineEntered(num: Int, line: String): Unit = {
     synchronized({
@@ -58,7 +50,7 @@ class RugLoomShell(val listener: ShellResponse.Listener) {
         }
       }
       val buffer: StringBuffer = stringWriter.getBuffer
-      response = response.withConsoleOut(buffer.toString)
+      response = response.withReportOut(buffer.toString)
       buffer.setLength(0)
       listener.responseReceived(response)
     })
