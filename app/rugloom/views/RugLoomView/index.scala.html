@@ -15,6 +15,7 @@
             var socket;
             var enteredLineNum = 0;
             var LARGE_INTEGER = 2e9;
+            var consoleEntries = [];
             function createMessageId() {
                 return { time: Date.now(), rand: Math.round(2*LARGE_INTEGER*Math.random() - LARGE_INTEGER) };
             }
@@ -52,15 +53,28 @@
                 socket.onopen = function() { sendPing() } ;
                 socket.onmessage = function(event) { processMessage(JSON.parse(event.data)); };
             }
+            function addConsoleEntry(line) {
+                var entry = { line: line };
+                return consoleEntries.push(entry) - 1;
+            }
+            function consoleEntryId(num) { return "rugLoomConsoleEntry" + num; }
+            function showConsoleEntries() {
+                var entryDivs = d3.select("#rugLoomConsole").selectAll("div.consoleEntry").data(consoleEntries);
+                var newDivs = entryDivs.enter().append("div").attr("class", "consoleEntry")
+                .attr("id", function(d, i) { return consoleEntryId(i); });
+                newDivs.append("div").attr("class", "lineEntered").text(function(d) { return d.line; })
+            }
             function onCommandKeyPress(event) {
                 var keyCode = event.keyCode || event.which;
                 if(keyCode == 13) {
                     var commandInput = d3.select("#commandInput");
                     var lineEntered = commandInput.property("value");
                     console.log("Line entered: " + lineEntered);
-                    enteredLineNum++;
-                    d3.select("#rugLoomConsole").append("div").attr("id", "rugLoomConsoleEntry"+enteredLineNum)
-                    .append("div").attr("class", "echo").text(lineEntered);
+                    var enteredLineNum = addConsoleEntry(lineEntered);
+                    showConsoleEntries();
+//                    enteredLineNum++;
+//                    d3.select("#rugLoomConsole").append("div").attr("id", consoleEntryId(enteredLineNum))
+//                    .append("div").attr("class", "echo").text(lineEntered);
                     var message = createLineEnteredMessage(lineEntered, enteredLineNum);
                     socket.send(JSON.stringify(message));
                     commandInput.property("value", "");
