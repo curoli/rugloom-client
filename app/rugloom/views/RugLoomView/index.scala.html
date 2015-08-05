@@ -30,24 +30,27 @@
                 var id = createMessageId();
                 return { id: id, kind: "lineEntered", line: line, num: num};
             }
+            function sendPing() {
+                socket.send(JSON.stringify(createPingMessage()));
+            }
+            function processMessage(msg) {
+                if(msg.kind == "ping") {
+                    console.log("I have received a ping message.\n Time stamp: " + new Date(msg.id.time));
+                    socket.send(JSON.stringify(createEchoMessage(msg)))
+                } else if(msg.kind == "echo") {
+                    console.log("I have received an echo message.\n Time stamp: " + new Date(msg.id.time));
+                } else if(msg.kind == "shellResponse") {
+                    console.log("I have received a shell response message.\n Time stamp: " +
+                        new Date(msg.id.time));
+                    alert(JSON.stringify(msg))
+                } else {
+                    console.log("I have received a message I did not understand:\n" + JSON.stringify(msg, null, 2))
+                }
+            }
             function openSocket() {
                 socket = new WebSocket("ws://localhost:9000/socket");
-                socket.onopen = function() { socket.send(JSON.stringify(createPingMessage())); };
-                socket.onmessage = function(event) {
-                    var msg = JSON.parse(event.data);
-                    if(msg.kind == "ping") {
-                        console.log("I have received a ping message.\n Time stamp: " + new Date(msg.id.time));
-                        socket.send(JSON.stringify(createEchoMessage(msg)))
-                    } else if(msg.kind == "echo") {
-                        console.log("I have received an echo message.\n Time stamp: " + new Date(msg.id.time));
-                    } else if(msg.kind == "shellResponse") {
-                        console.log("I have received a shell response message.\n Time stamp: " +
-                            new Date(msg.id.time));
-                        alert(JSON.stringify(msg))
-                    } else {
-                        console.log("I have received a message I did not understand:\n" + JSON.stringify(msg, null, 2))
-                    }
-                };
+                socket.onopen = function() { sendPing() } ;
+                socket.onmessage = function(event) { processMessage(JSON.parse(event.data)); };
             }
             function onCommandKeyPress(event) {
                 var keyCode = event.keyCode || event.which;
