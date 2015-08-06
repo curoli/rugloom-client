@@ -2,9 +2,11 @@ package rugloom.shell
 
 import java.io.{File, PrintWriter, StringWriter}
 
+import rugloom.util.{ChoppingPrintStream, ChopListener}
+
 import scala.tools.nsc.Settings
 import scala.tools.nsc.interpreter.IMain
-import scala.tools.nsc.interpreter.Results.{Success => IMainSuccess, Error => IMainError}
+import scala.tools.nsc.interpreter.Results.{Success => IMainSuccess, Error => IMainError, Incomplete => IMainIncomplete}
 import scala.util.{Success, Failure, Try}
 
 /**
@@ -26,6 +28,13 @@ class RugLoomShell(val listener: ShellOutput.Listener) {
   val printWriter = new PrintWriter(stringWriter)
   val imain = new IMain(settings, printWriter)
 
+  val shellOut = new ChoppingPrintStream(new ChopListener {
+    override def nextChop(chop: String): Unit = listener.out(chop)
+  })
+
+  val shellErr = new ChoppingPrintStream(new ChopListener {
+    override def nextChop(chop: String): Unit = { println("Error output: " + chop); listener.err(chop) }
+  })
 
   val greeting = "Hello, World!"
 
@@ -33,16 +42,18 @@ class RugLoomShell(val listener: ShellOutput.Listener) {
 
   imain.bind("predef", "rugloom.shell.Predef", predef)
   imain.interpret("import predef._")
+  stringWriter.getBuffer.setLength(0)
 
   def lineEntered(num: Int, line: String): Unit = {
     synchronized({
-      val result = imain.interpret(line)
+      val result = Console.withErr(shellErr)(Console.withOut(shellOut)(imain.interpret(line)))
       val buffer = stringWriter.getBuffer
       val resultText = buffer.toString
       buffer.setLength(0)
       result match {
         case IMainSuccess => listener.ok(resultText)
         case IMainError => listener.fail(resultText)
+        case IMainIncomplete => listener.fail(resultText)
       }
 
       val prevRequestList = imain.prevRequestList

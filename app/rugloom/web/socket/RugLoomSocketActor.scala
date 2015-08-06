@@ -19,10 +19,7 @@ object RugLoomSocketActor {
 class RugLoomSocketActor(out: ActorRef) extends Actor {
 
   val shellListener = new Listener {
-    override def output(response: ShellOutput): Unit = {
-      self ! response
-      println(response)
-    }
+    override def output(response: ShellOutput): Unit = self ! response
   }
 
   val shell = new RugLoomShell(shellListener)
@@ -38,12 +35,8 @@ class RugLoomSocketActor(out: ActorRef) extends Actor {
         case jsSuccess: JsSuccess[Message] =>
           val message = jsSuccess.get
           message match {
-            case message: PingMessage =>
-              println("I received a ping message: " + message)
-              println("I'm going to respond with echo.")
-              out ! Json.toJson(EchoMessage.create(message))
-            case message: EchoMessage =>
-              println("I have received an echo message: " + message)
+            case message: PingMessage => out ! Json.toJson(EchoMessage.create(message))
+            case message: EchoMessage => {}
             case message: InputMessage =>
               lineEnteredMessages += message.num -> message
               shell.lineEntered(message.num, message.input)
