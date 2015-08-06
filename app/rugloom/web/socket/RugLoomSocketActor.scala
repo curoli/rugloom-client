@@ -7,10 +7,10 @@ package rugloom.web.socket
 
 import akka.actor.{Actor, ActorRef, Props}
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
-import rugloom.shell.ShellResponse.Listener
-import rugloom.shell.{ShellResponse, RugLoomShell}
+import rugloom.shell.ShellOutput.Listener
+import rugloom.shell.{RugLoomShell, ShellOutput}
 import rugloom.web.socket.MessageJsonReading.messageReads
-import rugloom.web.socket.MessageJsonWriting.{echoMessageWrites, pingMessageWrites, shellResponseMessageWrites}
+import rugloom.web.socket.MessageJsonWriting.{echoMessageWrites, pingMessageWrites, shellOutputMessageWrites}
 
 object RugLoomSocketActor {
   def props(out: ActorRef) = Props(new RugLoomSocketActor(out))
@@ -19,14 +19,14 @@ object RugLoomSocketActor {
 class RugLoomSocketActor(out: ActorRef) extends Actor {
 
   val shellListener = new Listener {
-    override def responseReceived(response: ShellResponse): Unit = {
+    override def output(response: ShellOutput): Unit = {
       self ! response
       println(response)
     }
   }
 
   val shell = new RugLoomShell(shellListener)
-  var lineEnteredMessages: Map[Int, LineEnteredMessage] = Map.empty
+  var lineEnteredMessages: Map[Int, InputMessage] = Map.empty
 
   override def preStart(): Unit = {
     out ! Json.toJson(PingMessage.create)
@@ -44,21 +44,17 @@ class RugLoomSocketActor(out: ActorRef) extends Actor {
               out ! Json.toJson(EchoMessage.create(message))
             case message: EchoMessage =>
               println("I have received an echo message: " + message)
-            case message: LineEnteredMessage =>
+            case message: InputMessage =>
               lineEnteredMessages += message.num -> message
-              shell.lineEntered(message.num, message.line)
+              shell.lineEntered(message.num, message.input)
             case _ =>
               println("I have received an unknown type of message: " + message)
           }
         case jsError: JsError =>
           println("There was a JsError: " + jsError)
       }
-    case shellResponse: ShellResponse =>
-      lineEnteredMessages.get(shellResponse.num) match {
-        case Some(lineEnteredMessage) =>
-          out ! Json.toJson(ShellResponseMessage.create(lineEnteredMessage, shellResponse))
-        case None => println("Strange: received a shell response, but can't find lineEnteredMessage")
-      }
+    case shellOutput: ShellOutput =>
+      out ! Json.toJson(ShellOutputMessage.create(shellOutput))
     case msg: String =>
       println("I received a String, which should not happen.")
   }

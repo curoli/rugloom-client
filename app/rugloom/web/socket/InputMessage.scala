@@ -6,6 +6,6 @@ import rugloom.web.socket.Message.Kind
  * RugLoom - Explorative analysis pipeline prototype
  * Created by oliverr on 7/31/2015.
  */
-case class LineEnteredMessage(id: TimedId, line: String, num: Int) extends Message {
-  override def kind: Kind = Kind.lineEntered
+case class InputMessage(id: TimedId, input: String, num: Int) extends Message {
+  override def kind: Kind = Kind.input
 }

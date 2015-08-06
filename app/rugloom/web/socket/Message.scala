@@ -17,16 +17,16 @@ object Message {
 
     case object echo extends Kind
 
-    case object lineEntered extends Kind
+    case object input extends Kind
 
-    case object shellResponse extends Kind
+    case object output extends Kind
 
     def apply(string: String): Maybe[Kind] = {
       string match {
         case "ping" => Yes(ping)
         case "echo" => Yes(echo)
-        case "lineEntered" => Yes(lineEntered)
-        case "shellResponse" => Yes(shellResponse)
+        case "input" => Yes(input)
+        case "output" => Yes(output)
         case _ => No("Unknown message kind '" + string + "'")
       }
     }

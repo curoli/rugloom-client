@@ -4,7 +4,8 @@ import java.io.{File, PrintWriter, StringWriter}
 
 import scala.tools.nsc.Settings
 import scala.tools.nsc.interpreter.IMain
-import scala.util.{Failure, Success, Try}
+import scala.tools.nsc.interpreter.Results.{Success => IMainSuccess, Error => IMainError}
+import scala.util.{Success, Failure, Try}
 
 /**
  * RugLoom - Explorative analysis pipeline prototype
@@ -13,7 +14,7 @@ import scala.util.{Failure, Success, Try}
 object RugLoomShell {
 }
 
-class RugLoomShell(val listener: ShellResponse.Listener) {
+class RugLoomShell(val listener: ShellOutput.Listener) {
 
 
   val settings = new Settings
@@ -36,23 +37,24 @@ class RugLoomShell(val listener: ShellResponse.Listener) {
   def lineEntered(num: Int, line: String): Unit = {
     synchronized({
       val result = imain.interpret(line)
-      var response = ShellResponse(num, line, result)
-      listener.responseReceived(response)
+      val buffer = stringWriter.getBuffer
+      val resultText = buffer.toString
+      buffer.setLength(0)
+      result match {
+        case IMainSuccess => listener.ok(resultText)
+        case IMainError => listener.fail(resultText)
+      }
+
       val prevRequestList = imain.prevRequestList
       if (prevRequestList.nonEmpty) {
         val lastRequest = prevRequestList.last
         Try(lastRequest.lineRep.call("$result")) match {
           case Success(result) =>
             println("Result is: " + result)
-          case Failure(ex) => {
+          case Failure(ex) =>
             println("Exception thrown: " + ex)
-          }
         }
       }
-      val buffer: StringBuffer = stringWriter.getBuffer
-      response = response.appendReport(buffer.toString)
-      buffer.setLength(0)
-      listener.responseReceived(response)
     })
   }
 

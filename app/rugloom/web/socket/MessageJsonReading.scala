@@ -26,8 +26,8 @@ object MessageJsonReading {
   implicit val echoMessageReads: Reads[EchoMessage] =
     ((JsPath \ "id").read[TimedId] and (JsPath \ "inResponseToId").read[TimedId])(EchoMessage(_, _))
 
-  implicit val lineEnteredMessageReads: Reads[LineEnteredMessage] =
-    ((JsPath \ "id").read[TimedId] and (JsPath \ "line").read[String] and (JsPath\"num").read[Int])(LineEnteredMessage(_, _, _))
+  implicit val inputMessageReads: Reads[InputMessage] =
+    ((JsPath \ "id").read[TimedId] and (JsPath \ "input").read[String] and (JsPath\"num").read[Int])(InputMessage(_, _, _))
 
   implicit val messageReads = new Reads[Message] {
     override def reads(json: JsValue): JsResult[Message] = {
@@ -37,7 +37,7 @@ object MessageJsonReading {
           kind match {
             case Message.Kind.ping => json.validate[PingMessage]
             case Message.Kind.echo => json.validate[EchoMessage]
-            case Message.Kind.lineEntered => json.validate[LineEnteredMessage]
+            case Message.Kind.`input` => json.validate[InputMessage]
             case _ => JsError("Unknown message type '" + kind + "'")
           }
         case error: JsError => error

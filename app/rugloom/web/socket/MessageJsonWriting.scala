@@ -1,6 +1,7 @@
 package rugloom.web.socket
 
-import play.api.libs.json.{JsValue, JsObject, JsString, Json, Writes}
+import play.api.libs.json.{JsObject, JsString, JsValue, Json, Writes}
+import rugloom.shell.ShellOutput
 import rugloom.web.socket.Message.Kind
 
 import scala.tools.nsc.interpreter.Results.Result
@@ -37,11 +38,11 @@ object MessageJsonWriting {
     )
   }
 
-  implicit val lineEnteredMessageWrites = new Writes[LineEnteredMessage] {
-    override def writes(message: LineEnteredMessage): JsObject = Json.obj(
+  implicit val inputMessageWrites = new Writes[InputMessage] {
+    override def writes(message: InputMessage): JsObject = Json.obj(
       "id" -> message.id,
       "kind" -> message.kind,
-      "line" -> message.line,
+      "input" -> message.input,
       "num" -> message.num
     )
   }
@@ -50,15 +51,18 @@ object MessageJsonWriting {
     override def writes(result: Result): JsString = new JsString(result.toString)
   }
 
-  implicit val shellResponseMessageWrites = new Writes[ShellResponseMessage] {
-    override def writes(message: ShellResponseMessage): JsObject = Json.obj(
+  implicit val shellOutputWrites = new Writes[ShellOutput] {
+    override def writes(response: ShellOutput): JsObject = Json.obj(
+      "kind" -> response.kindAsString,
+      "text" -> response.text
+    )
+  }
+
+  implicit val shellOutputMessageWrites = new Writes[ShellOutputMessage] {
+    override def writes(message: ShellOutputMessage): JsObject = Json.obj(
       "id" -> message.id,
       "kind" -> message.kind,
-      "inResponseToId" -> message.inResponseToId,
-      "num" -> message.response.num,
-      "line" -> message.response.lineEntered,
-      "resultReturned" -> message.response.resultReturned,
-      "consoleOut" -> message.response.report
+      "output" -> message.output
     )
   }
 
@@ -66,7 +70,7 @@ object MessageJsonWriting {
     override def writes(message: Message): JsValue = message match {
       case pingMessage: PingMessage => Json.toJson(pingMessage)
       case echoMessage: EchoMessage => Json.toJson(echoMessage)
-      case lineEnteredMessage: LineEnteredMessage => Json.toJson(lineEnteredMessage)
+      case lineEnteredMessage: InputMessage => Json.toJson(lineEnteredMessage)
     }
   }
 

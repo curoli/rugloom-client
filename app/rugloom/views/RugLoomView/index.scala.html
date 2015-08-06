@@ -11,12 +11,16 @@
         }
         pre {
         font-family : Lucida Console, Lucida Sans Typewriter, monaco, Bitstream Vera Sans Mono, monospace ;
+        margin : 0 ;
         }
-        .lineEntered {
-        color : lightgreen ;
+        .input {
+        color : yellow ;
         }
-        .consoleOut {
+        .ok {
         color : lightblue ;
+        }
+        .fail {
+        color : orange ;
         }
         </style>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
@@ -25,6 +29,7 @@
             var enteredLineNum = 0;
             var LARGE_INTEGER = 2e9;
             var consoleEntries = [];
+            var consoleInputs = [];
             function createMessageId() {
                 return { time: Date.now(), rand: Math.round(2*LARGE_INTEGER*Math.random() - LARGE_INTEGER) };
             }
@@ -36,9 +41,9 @@
                 var id = createMessageId();
                 return { id: id, kind: "echo", inResponseToId: pingMessage.id, inResponseToKind: pingMessage.kind };
             }
-            function createLineEnteredMessage(line, num) {
+            function createInputMessage(line, num) {
                 var id = createMessageId();
-                return { id: id, kind: "lineEntered", line: line, num: num};
+                return { id: id, kind: "input", input: line, num: num};
             }
             function sendPing() {
                 socket.send(JSON.stringify(createPingMessage()));
@@ -49,13 +54,10 @@
                     socket.send(JSON.stringify(createEchoMessage(msg)))
                 } else if(msg.kind == "echo") {
                     console.log("I have received an echo message.\n Time stamp: " + new Date(msg.id.time));
-                } else if(msg.kind == "shellResponse") {
-                    console.log("I have received a shell response message.\n Time stamp: " +
+                } else if(msg.kind == "output") {
+                    console.log("I have received a shell output message.\n Time stamp: " +
                         new Date(msg.id.time));
-                    var entry = consoleEntries[msg.num];
-                    entry.line = msg.line;
-                    entry.resultReturned = msg.resultReturned;
-                    entry.consoleOut = msg.consoleOut;
+                    consoleEntries.push(msg.output);
                     showConsoleEntries();
                 } else {
                     console.log("I have received a message I did not understand:\n" + JSON.stringify(msg, null, 2))
@@ -66,19 +68,15 @@
                 socket.onopen = function() { sendPing() } ;
                 socket.onmessage = function(event) { processMessage(JSON.parse(event.data)); };
             }
-            function addConsoleEntry(line) {
-                var entry = { line: line };
-                return consoleEntries.push(entry) - 1;
+            function addConsoleInput(line) {
+                var entry = { kind: "input", text: line };
+                consoleEntries.push(entry);
+                return consoleInputs.push(entry) - 1;
             }
-            function consoleEntryId(num) { return "rugLoomConsoleEntry" + num; }
             function showConsoleEntries() {
-                var entryDivs = d3.select("#rugLoomConsole").selectAll("div.consoleEntry").data(consoleEntries);
-                var newDivs = entryDivs.enter().append("div").attr("class", "consoleEntry")
-                .attr("id", function(d, i) { return consoleEntryId(i); });
-                newDivs.append("div").attr("class", "lineEntered").append("pre");
-                newDivs.append("div").attr("class", "consoleOut").append("pre");
-                entryDivs.select(".lineEntered").select("pre").text(function(d) { return d.line; });
-                entryDivs.select(".consoleOut").select("pre").text(function(d) { return d.consoleOut; });
+                var entryNodes = d3.select("#rugLoomConsole").selectAll(".consoleEntry").data(consoleEntries);
+                entryNodes.enter().append("pre").attr("class", function(d) { return "consoleEntry " + d.kind; })
+                .text(function(d) { return d.text; })
             }
             function onCommandKeyPress(event) {
                 var keyCode = event.keyCode || event.which;
@@ -86,9 +84,9 @@
                     var commandInput = d3.select("#commandInput");
                     var lineEntered = commandInput.property("value");
                     console.log("Line entered: " + lineEntered);
-                    var enteredLineNum = addConsoleEntry(lineEntered);
+                    var enteredLineNum = addConsoleInput(lineEntered);
                     showConsoleEntries();
-                    var message = createLineEnteredMessage(lineEntered, enteredLineNum);
+                    var message = createInputMessage(lineEntered, enteredLineNum);
                     socket.send(JSON.stringify(message));
                     commandInput.property("value", "");
                 }
