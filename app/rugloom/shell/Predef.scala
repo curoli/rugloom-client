@@ -6,6 +6,10 @@ package rugloom.shell
  */
 class Predef {
 
-  def testMessage : String = "This is the test message"
+  def testMessage: String = "This is the test message"
+
+  type Rug = rugloom.rug.Rug
+  val Rug = rugloom.rug.Rug
+
 
 }
