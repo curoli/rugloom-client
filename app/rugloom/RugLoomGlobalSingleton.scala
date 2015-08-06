@@ -10,23 +10,24 @@ import rugloom.util.MulticastOutputStream
  */
 object RugLoomGlobalSingleton {
 
-//  def init = println("Initializing the RugLoom global singleton.")
-//
-//  val oldOut = System.out
-//  val oldErr = System.err
-//  val forkedOut = new ByteArrayOutputStream
-//  val forkedErr = new ByteArrayOutputStream
-//
-//  System.setOut(new PrintStream(new MulticastOutputStream(Seq(System.out, forkedOut))))
-//  System.setErr(new PrintStream(new MulticastOutputStream(Seq(System.err, forkedErr))))
-//
-//  private def harvestForkedStream(os:ByteArrayOutputStream) : String = {
-//    val content = os.toString
-//    os.reset
-//    content
-//  }
-//
-//  def harvestOut : String = harvestForkedStream(forkedOut)
-//  def harvestErr : String = harvestForkedStream(forkedErr)
-//
+  def init = println("Initializing the RugLoom global singleton.")
+
+  val oldOut = System.out
+  val oldErr = System.err
+  val forkedOut = new ByteArrayOutputStream
+  val forkedErr = new ByteArrayOutputStream
+
+  val autoFlush = true;
+  System.setOut(new PrintStream(new MulticastOutputStream(Seq(System.out, forkedOut)), autoFlush))
+  System.setErr(new PrintStream(new MulticastOutputStream(Seq(System.err, forkedErr)), autoFlush))
+
+  private def harvestForkedStream(os:ByteArrayOutputStream) : String = {
+    val content = os.toString
+    os.reset
+    content
+  }
+
+  def harvestOut : String = harvestForkedStream(forkedOut)
+  def harvestErr : String = harvestForkedStream(forkedErr)
+
 }

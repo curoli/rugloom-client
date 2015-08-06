@@ -8,15 +8,28 @@ import scala.tools.nsc.interpreter.Results.Result
  */
 object ShellResponse {
 
+  sealed trait Kind
+  case object ok extends Kind
+  case object fail extends Kind
+  case object out extends Kind
+  case object err extends Kind
+
   trait Listener {
     def responseReceived(response: ShellResponse)
   }
 
 }
 
-case class ShellResponse(num: Int, lineEntered: String, resultReturned: Result, reportOut: String = "") {
+case class ShellResponse(num: Int, lineEntered: String, resultReturned: Result, report: String = "",
+                         out: String = "", err: String = "") {
 
-  def withReportOut(consoleOut: String): ShellResponse = copy(reportOut = consoleOut)
+  def withReport(report: String): ShellResponse = copy(report = report)
+
+  def appendReport(reportText: String): ShellResponse = copy(report = report + reportText)
+
+  def appendOut(outText: String): ShellResponse = copy(out = out + outText)
+
+  def appendErr(errText: String): ShellResponse = copy(err = err + errText)
 
 
 }

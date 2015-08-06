@@ -58,7 +58,7 @@ object MessageJsonWriting {
       "num" -> message.response.num,
       "line" -> message.response.lineEntered,
       "resultReturned" -> message.response.resultReturned,
-      "consoleOut" -> message.response.reportOut
+      "consoleOut" -> message.response.report
     )
   }
 

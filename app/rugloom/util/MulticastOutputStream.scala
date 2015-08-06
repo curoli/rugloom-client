@@ -8,4 +8,6 @@ import java.io.{FilterOutputStream, OutputStream}
  */
 class MulticastOutputStream(val outs: Seq[OutputStream]) extends OutputStream {
   override def write(b: Int): Unit = outs.map(_.write(b))
+
+  override def flush(): Unit = outs.map(_.flush)
 }

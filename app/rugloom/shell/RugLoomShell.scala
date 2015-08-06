@@ -50,7 +50,7 @@ class RugLoomShell(val listener: ShellResponse.Listener) {
         }
       }
       val buffer: StringBuffer = stringWriter.getBuffer
-      response = response.withReportOut(buffer.toString)
+      response = response.appendReport(buffer.toString)
       buffer.setLength(0)
       listener.responseReceived(response)
     })
