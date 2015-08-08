@@ -45,16 +45,18 @@ class MockRug(val name: String, nSamples: Int, nMuts: Int) extends Rug {
       val isMale = males.contains(sampleId)
       val zygosity = if (isMale && chr.isInstanceOf[Allosome]) {
         if (random.nextDouble() < freq) 1 else 0
-      } else if(!isMale && chr == GenoPos.chrY){
+      } else if (!isMale && chr == GenoPos.chrY) {
         0
       } else {
         (if (random.nextDouble() < freq) 1 else 0) + (if (random.nextDouble() < freq) 1 else 0)
       }
-      val genotype = Genotype(vari, zygosity)
-      val genotypes = sampleGenotypes.getOrElse(sampleId, Set.empty) + genotype
-      sampleGenotypes += sampleId -> genotypes
-      val variGenotypes = variSampleGenotypes.getOrElse(vari, Set.empty) + ((sampleId, genotype))
-      variSampleGenotypes += vari -> variGenotypes
+      if (zygosity > 0) {
+        val genotype = Genotype(vari, zygosity)
+        val genotypes = sampleGenotypes.getOrElse(sampleId, Set.empty) + genotype
+        sampleGenotypes += sampleId -> genotypes
+        val variGenotypes = variSampleGenotypes.getOrElse(vari, Set.empty) + ((sampleId, genotype))
+        variSampleGenotypes += vari -> variGenotypes
+      }
     }
   }
 
