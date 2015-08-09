@@ -11,5 +11,6 @@ class Predef {
   type Rug = rugloom.rug.Rug
   val Rug = rugloom.rug.Rug
 
+  type MockRug = rugloom.rug.MockRug
 
 }

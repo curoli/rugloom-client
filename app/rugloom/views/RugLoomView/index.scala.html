@@ -84,10 +84,15 @@
                 entryNodes.enter().append("pre").attr("class", function(d) { return "consoleEntry " + d.kind; })
                 .text(function(d) { return d.text; })
             }
+            function getCommandInputNode() {
+                return d3.select("#commandInput");
+            }
+            var iHistoryRecall = 0;
+            var presentLine = "";
             function onCommandKeyPress(event) {
                 var keyCode = event.keyCode || event.which;
                 if(keyCode == 13) {
-                    var commandInput = d3.select("#commandInput");
+                    var commandInput = getCommandInputNode();
                     var lineEntered = commandInput.property("value");
                     console.log("Line entered: " + lineEntered);
                     var enteredLineNum = addConsoleInput(lineEntered);
@@ -95,6 +100,33 @@
                     var message = createInputMessage(lineEntered, enteredLineNum);
                     socket.send(JSON.stringify(message));
                     commandInput.property("value", "");
+                    iHistoryRecall = 0;
+                    presentLine = "";
+                }
+            }
+            function onKeyDown(event) {
+                var keyCode = event.keyCode;
+                if(keyCode == 38) { // up arrow
+                    var commandInputNode = getCommandInputNode();
+                    if(iHistoryRecall == 0) {
+                        presentLine = commandInputNode.property("value")
+                    }
+                    if(iHistoryRecall < consoleInputs.length) {
+                        iHistoryRecall++;
+                        commandInputNode.property("value",
+                            consoleInputs[consoleInputs.length - iHistoryRecall].text);
+                    }
+                } else if(keyCode == 40) { // down arrow
+                    if(iHistoryRecall > 0) {
+                        iHistoryRecall--;
+                    }
+                    var commandInputNode = getCommandInputNode();
+                    if(iHistoryRecall == 0) {
+                        commandInputNode.property("value", presentLine);
+                    } else {
+                        commandInputNode.property("value",
+                            consoleInputs[consoleInputs.length - iHistoryRecall].text);
+                    }
                 }
             }
         </script>
@@ -103,6 +135,7 @@
         <h1>@title</h1>
         <pre>Hello, this is @title! Enter an expression.</pre>
         <div id="rugLoomConsole"></div>
-        <input id="commandInput" type="text" size="100" onkeypress="onCommandKeyPress(event);"/>
+        <input id="commandInput" type="text" size="100" onkeypress="onCommandKeyPress(event);"
+        onkeydown="onKeyDown(event);"/>
     </body>
 </html>
