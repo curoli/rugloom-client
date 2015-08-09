@@ -5,12 +5,13 @@
         <title>@title</title>
         <style>
         body {
-        background-color : black ;
+        background : black ;
         color : yellow ;
         font-family : sans-serif ;
         }
-        pre {
+        pre, input {
         font-family : Lucida Console, Lucida Sans Typewriter, monaco, Bitstream Vera Sans Mono, monospace ;
+        font-size : 14px ;
         margin : 0 ;
         }
         .input {
@@ -27,6 +28,11 @@
         }
         .err {
         color : orangered ;
+        }
+        input {
+        color : yellow ;
+        background : green ;
+        border : none ;
         }
         </style>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
@@ -135,7 +141,7 @@
         <h1>@title</h1>
         <pre>Hello, this is @title! Enter an expression.</pre>
         <div id="rugLoomConsole"></div>
-        <input id="commandInput" type="text" size="100" onkeypress="onCommandKeyPress(event);"
+        <input id="commandInput" type="text" size="128" onkeypress="onCommandKeyPress(event);"
         onkeydown="onKeyDown(event);"/>
     </body>
 </html>
