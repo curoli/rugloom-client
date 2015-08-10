@@ -8,12 +8,11 @@ import scala.util.Random
  * RugLoom - Explorative analysis pipeline prototype
  * Created by oliverr on 8/7/2015.
  */
-class MockRug(val name: String, nSamples: Int, nMuts: Int) extends Rug {
+class MockRug(nSamples: Int, nVaris: Int, sampleIdBase : String = "patient") extends Rug {
 
   var sampleIds = Set.empty[SampleId]
   var sampleGenotypes = Map.empty[SampleId, Set[Genotype]]
   var variSampleGenotypes = Map.empty[Variation, Set[(SampleId, Genotype)]]
-  val sampleIdBase = "patient"
   var males = Set.empty[SampleId]
   val random = new Random
   for (iSample <- 0 until nSamples) {
@@ -23,7 +22,7 @@ class MockRug(val name: String, nSamples: Int, nMuts: Int) extends Rug {
   }
 
   var muts = Set.empty[Variation]
-  for (iMut <- 0 until nMuts) {
+  for (iMut <- 0 until nVaris) {
     val iChr = random.nextInt(23) + 1
     val chr = if (iChr < 23) {
       GenoPos.Autosome(iChr)
