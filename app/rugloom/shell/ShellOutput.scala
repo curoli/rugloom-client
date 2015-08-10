@@ -25,13 +25,15 @@ object ShellOutput {
   trait Listener {
     def output(output: ShellOutput)
 
-    def ok(text: String) = output(Ok(text))
+    def textFilter(text: String): String = text.trim
 
-    def fail(text: String) = output(Fail(text))
+    def ok(text: String) = output(Ok(textFilter(text)))
 
-    def out(text: String) = output(Out(text))
+    def fail(text: String) = output(Fail(textFilter(text)))
 
-    def err(text: String) = output(Err(text))
+    def out(text: String) = output(Out(textFilter(text)))
+
+    def err(text: String) = output(Err(textFilter(text)))
   }
 
 }
