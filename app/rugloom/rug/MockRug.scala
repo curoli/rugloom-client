@@ -1,6 +1,7 @@
 package rugloom.rug
 
 import rugloom.rug.GenoPos.Allosome
+import rugloom.rug.MockRug.{VarisPipe, NVarisPipe, SampsPipe, NSampsPipe}
 
 import scala.util.Random
 
@@ -8,9 +9,30 @@ import scala.util.Random
  * RugLoom - Explorative analysis pipeline prototype
  * Created by oliverr on 8/7/2015.
  */
-class MockRug(nSamples: Int, nVaris: Int, sampleIdBase: String = "patient") extends Rug {
+object MockRug {
 
-  val sampleIds = (0 until nSamples).map(sampleIdBase + _).map(SampleId(_)).toSet
+  class NSampsPipe(rug: MockRug) extends Pipe[Int] {
+    override def ! : Int = rug.sampleIds.size
+  }
+
+  class SampsPipe(rug: MockRug) extends Pipe[Iterator[String]] {
+    override def ! : Iterator[String] = rug.sampleIds.iterator.map(_.id)
+  }
+
+  class NVarisPipe(rug: MockRug) extends Pipe[Int] {
+    override def ! : Int = rug.vs.size
+  }
+
+  class VarisPipe(rug: MockRug) extends Pipe[Iterator[Variation]] {
+    override def ! : Iterator[Variation] = rug.vs.iterator
+  }
+
+
+}
+
+class MockRug(nSs: Int, nVs: Int, sampleIdBase: String = "patient") extends Rug {
+
+  val sampleIds = (0 until nSs).map(sampleIdBase + _).map(SampleId(_)).toSet
   val random = new Random
   val males = sampleIds.filter(s => random.nextBoolean);
 
@@ -33,9 +55,9 @@ class MockRug(nSamples: Int, nVaris: Int, sampleIdBase: String = "patient") exte
     Variation(genePos, ref, seq)
   }
 
-  val varis = Iterator.fill(nVaris)(createVari).toSet
+  val vs = Iterator.fill(nVs)(createVari).toSet
 
-  val sampleVaris = varis.flatMap({ vari =>
+  val sampleVaris = vs.flatMap({ vari =>
     val freq = random.nextDouble * random.nextDouble * random.nextDouble
     sampleIds.map({ sampleId =>
       val isMale = males.contains(sampleId)
@@ -50,4 +72,11 @@ class MockRug(nSamples: Int, nVaris: Int, sampleIdBase: String = "patient") exte
     })
   }).toMap
 
+  override def nSamps: Pipe[Int] = new NSampsPipe(this)
+
+  override def samps: Pipe[Iterator[String]] = new SampsPipe(this)
+
+  override def nVaris: Pipe[Int] = new NVarisPipe(this)
+
+  override def varis: Pipe[Iterator[Variation]] = new VarisPipe(this)
 }

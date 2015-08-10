@@ -8,7 +8,7 @@ import rugloom.rug.{Rug, MockRug}
  */
 object RL {
 
-  def mock(nSamples: Int, nVaris: Int, sampleIdBase: String = "patient"): Rug =
-    new MockRug(nSamples, nVaris, sampleIdBase)
+  def mock(nSamps: Int, nVaris: Int, sampleIdBase: String = "patient"): Rug =
+    new MockRug(nSamps, nVaris, sampleIdBase)
 
 }

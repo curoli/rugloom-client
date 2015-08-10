@@ -6,9 +6,16 @@ package rugloom.rug
  */
 object Rug {
 
-  def apply(name: String): Rug = NamedRug(name)
 }
 
 trait Rug {
+
+  def nSamps: Pipe[Int]
+
+  def samps: Pipe[Iterator[String]]
+
+  def nVaris: Pipe[Int]
+
+  def varis: Pipe[Iterator[Variation]]
 
 }

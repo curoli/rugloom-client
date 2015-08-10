@@ -42,6 +42,7 @@ class RugLoomShell(val listener: ShellOutput.Listener) {
 
   imain.bind("predef", "rugloom.shell.Predef", predef)
   imain.interpret("import predef._")
+  imain.interpret("import language.postfixOps")
   stringWriter.getBuffer.setLength(0)
 
   def lineEntered(num: Int, line: String): Unit = {
