@@ -10,4 +10,6 @@ object Genotype {
 
 case class Genotype(variation: Variation, zygosity: Int) {
 
+  override def toString: String = "" + variation + ":" + zygosity
+
 }

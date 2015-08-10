@@ -91,6 +91,8 @@ class MockRug(nSs: Int, nVs: Int, sampleIdBase: String = "patient") extends Rug 
     })
   }).toMap
 
+  override def toString: String = "MockRug(" + nSs + "," + nVs + "," + sampleIdBase + ")"
+
   override def nSamps: Pipe[Int] = new NSampsPipe(this)
 
   override def samps: Pipe[Iterator[String]] = new SampsPipe(this)
