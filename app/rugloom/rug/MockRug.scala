@@ -8,21 +8,13 @@ import scala.util.Random
  * RugLoom - Explorative analysis pipeline prototype
  * Created by oliverr on 8/7/2015.
  */
-class MockRug(nSamples: Int, nVaris: Int, sampleIdBase : String = "patient") extends Rug {
+class MockRug(nSamples: Int, nVaris: Int, sampleIdBase: String = "patient") extends Rug {
 
-  var sampleIds = Set.empty[SampleId]
-  var sampleGenotypes = Map.empty[SampleId, Set[Genotype]]
-  var variSampleGenotypes = Map.empty[Variation, Set[(SampleId, Genotype)]]
-  var males = Set.empty[SampleId]
+  val sampleIds = (0 until nSamples).map(sampleIdBase + _).map(SampleId(_)).toSet
   val random = new Random
-  for (iSample <- 0 until nSamples) {
-    val sampleId = SampleId(sampleIdBase + iSample)
-    sampleIds += sampleId
-    if (random.nextBoolean()) males += sampleId
-  }
+  val males = sampleIds.filter(s => random.nextBoolean);
 
-  var muts = Set.empty[Variation]
-  for (iMut <- 0 until nVaris) {
+  def createVari: Variation = {
     val iChr = random.nextInt(23) + 1
     val chr = if (iChr < 23) {
       GenoPos.Autosome(iChr)
@@ -38,25 +30,24 @@ class MockRug(nSamples: Int, nVaris: Int, sampleIdBase : String = "patient") ext
     val genePos = GenoPos(chr, pos)
     val ref = Variation.baseSeq(random.nextInt(Variation.baseSeq.size))
     val seq = Variation.baseSeq(random.nextInt(Variation.baseSeq.size))
-    val vari = Variation(genePos, ref, seq)
-    val freq = 0.5 * random.nextDouble()
-    for (sampleId <- sampleIds) {
+    Variation(genePos, ref, seq)
+  }
+
+  val varis = Iterator.fill(nVaris)(createVari).toSet
+
+  val sampleVaris = varis.flatMap({ vari =>
+    val freq = random.nextDouble * random.nextDouble * random.nextDouble
+    sampleIds.map({ sampleId =>
       val isMale = males.contains(sampleId)
-      val zygosity = if (isMale && chr.isInstanceOf[Allosome]) {
+      val zygosity = if (isMale && vari.pos.chr.isInstanceOf[Allosome]) {
         if (random.nextDouble() < freq) 1 else 0
-      } else if (!isMale && chr == GenoPos.chrY) {
+      } else if (!isMale && vari.pos.chr == GenoPos.chrY) {
         0
       } else {
         (if (random.nextDouble() < freq) 1 else 0) + (if (random.nextDouble() < freq) 1 else 0)
       }
-      if (zygosity > 0) {
-        val genotype = Genotype(vari, zygosity)
-        val genotypes = sampleGenotypes.getOrElse(sampleId, Set.empty) + genotype
-        sampleGenotypes += sampleId -> genotypes
-        val variGenotypes = variSampleGenotypes.getOrElse(vari, Set.empty) + ((sampleId, genotype))
-        variSampleGenotypes += vari -> variGenotypes
-      }
-    }
-  }
+      (sampleId, vari) -> Genotype(vari, zygosity)
+    })
+  }).toMap
 
 }
