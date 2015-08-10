@@ -1,7 +1,6 @@
 package rugloom.rug
 
-import rugloom.rug.GenoPos.Allosome
-import rugloom.rug.MockRug.{VarisPipe, NVarisPipe, SampsPipe, NSampsPipe}
+import rugloom.rug.MockRug.{GenotypePipe, NSampsPipe, NVarisPipe, SampGenosPipe, SampsPipe, VariGenosPipe, VarisPipe}
 
 import scala.util.Random
 
@@ -27,6 +26,22 @@ object MockRug {
     override def ! : Iterator[Variation] = rug.vs.iterator
   }
 
+  class SampGenosPipe(rug: MockRug, samp: String) extends Pipe[Iterator[Genotype]] {
+    override def ! : Iterator[Genotype] = {
+      val sampId = SampleId(samp)
+      rug.vs.iterator.flatMap(vari => rug.sampleVaris.get((sampId, vari)))
+    }
+  }
+
+  class VariGenosPipe(rug: MockRug, vari: Variation) extends Pipe[Iterator[(String, Genotype)]] {
+    override def ! : Iterator[(String, Genotype)] = rug.sampleVaris.iterator.collect({
+      case ((SampleId(samp), v: Variation), genotype: Genotype) if (v == vari) => (samp, genotype)
+    })
+  }
+
+  class GenotypePipe(rug: MockRug, samp: String, vari: Variation) extends Pipe[Option[Genotype]] {
+    override def ! : Option[Genotype] = rug.sampleVaris.get((SampleId(samp), vari))
+  }
 
 }
 
@@ -39,13 +54,13 @@ class MockRug(nSs: Int, nVs: Int, sampleIdBase: String = "patient") extends Rug 
   def createVari: Variation = {
     val iChr = random.nextInt(23) + 1
     val chr = if (iChr < 23) {
-      GenoPos.Autosome(iChr)
+      Autosome(iChr)
     } else {
       val chanceOfOnX = 0.75 // Roughly, if X and Y were equal in size. Of course, Y is shorter than X.
       if (random.nextDouble < chanceOfOnX) {
-        GenoPos.chrX
+        Chr.chrX
       } else {
-        GenoPos.chrY
+        Chr.chrY
       }
     }
     val pos = random.nextInt(65000000) // Approximate range, if all chroms were equal in size
@@ -67,7 +82,7 @@ class MockRug(nSs: Int, nVs: Int, sampleIdBase: String = "patient") extends Rug 
       val isMale = males.contains(sampleId)
       val zygosity = if (isMale && vari.pos.chr.isInstanceOf[Allosome]) {
         if (random.nextDouble() < freq) 1 else 0
-      } else if (!isMale && vari.pos.chr == GenoPos.chrY) {
+      } else if (!isMale && vari.pos.chr == Chr.chrY) {
         0
       } else {
         (if (random.nextDouble() < freq) 1 else 0) + (if (random.nextDouble() < freq) 1 else 0)
@@ -83,4 +98,11 @@ class MockRug(nSs: Int, nVs: Int, sampleIdBase: String = "patient") extends Rug 
   override def nVaris: Pipe[Int] = new NVarisPipe(this)
 
   override def varis: Pipe[Iterator[Variation]] = new VarisPipe(this)
+
+  override def sampGenos(samp: String): Pipe[Iterator[Genotype]] = new SampGenosPipe(this, samp)
+
+  override def variGenos(vari: Variation): Pipe[Iterator[(String, Genotype)]] = new VariGenosPipe(this, vari)
+
+  override def genotype(samp: String, vari: Variation): Pipe[Option[Genotype]] = new GenotypePipe(this, samp, vari)
+
 }

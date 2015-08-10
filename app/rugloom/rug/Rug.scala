@@ -18,4 +18,9 @@ trait Rug {
 
   def varis: Pipe[Iterator[Variation]]
 
+  def sampGenos(samp: String): Pipe[Iterator[Genotype]]
+
+  def variGenos(vari: Variation): Pipe[Iterator[(String, Genotype)]]
+
+  def genotype(samp: String, vari: Variation): Pipe[Option[Genotype]]
 }
