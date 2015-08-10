@@ -8,12 +8,12 @@ object Variation {
   val bases = Set("A", "T", "G", "C")
   val baseSeq = bases.toSeq
 
-  def apply(chr: Int, pos: Int, ref: String, seq: String): Variation = Variation(GenoPos(Chr(chr), pos), ref, seq)
+  def apply(chr: Int, pos: Int, ref: String, seq: String): Variation = Variation(Chr(chr), pos, ref, seq)
 
-  def apply(chr: String, pos: Int, ref: String, seq: String): Variation = Variation(GenoPos(Chr(chr), pos), ref, seq)
+  def apply(chr: String, pos: Int, ref: String, seq: String): Variation = Variation(Chr(chr), pos, ref, seq)
 }
 
-case class Variation(pos: GenoPos, ref: String, seq: String) {
+case class Variation(chr: Chr, pos: Int, ref: String, seq: String) {
   override def toString = pos + "_" + ref + "_" + seq
 
   def isSnp: Boolean = ref.length == 1 && seq.length == 1

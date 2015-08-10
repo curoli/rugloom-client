@@ -45,7 +45,7 @@ object MockRug {
 
 }
 
-class MockRug(nSs: Int, nVs: Int, sampleIdBase: String = "patient") extends Rug {
+class MockRug(nSs: Int, nVs: Int, sampleIdBase: String = "patient") extends Rug with VariFilterRug.Wrapper {
 
   val sampleIds = (0 until nSs).map(sampleIdBase + _).map(SampleId(_)).toSet
   val random = new Random
@@ -64,14 +64,13 @@ class MockRug(nSs: Int, nVs: Int, sampleIdBase: String = "patient") extends Rug 
       }
     }
     val pos = random.nextInt(65000000) // Approximate range, if all chroms were equal in size
-    val genePos = GenoPos(chr, pos)
     val ref = Variation.baseSeq(random.nextInt(Variation.baseSeq.size))
     val seq = {
       var seq: String = null
       while (seq == null || seq == ref) seq = Variation.baseSeq(random.nextInt(Variation.baseSeq.size))
       seq
     }
-    Variation(genePos, ref, seq)
+    Variation(chr, pos, ref, seq)
   }
 
   val vs = Iterator.fill(nVs)(createVari).toSet
@@ -80,9 +79,9 @@ class MockRug(nSs: Int, nVs: Int, sampleIdBase: String = "patient") extends Rug 
     val freq = random.nextDouble * random.nextDouble * random.nextDouble
     sampleIds.map({ sampleId =>
       val isMale = males.contains(sampleId)
-      val zygosity = if (isMale && vari.pos.chr.isInstanceOf[Allosome]) {
+      val zygosity = if (isMale && vari.chr.isInstanceOf[Allosome]) {
         if (random.nextDouble() < freq) 1 else 0
-      } else if (!isMale && vari.pos.chr == Chr.chrY) {
+      } else if (!isMale && vari.chr == Chr.chrY) {
         0
       } else {
         (if (random.nextDouble() < freq) 1 else 0) + (if (random.nextDouble() < freq) 1 else 0)

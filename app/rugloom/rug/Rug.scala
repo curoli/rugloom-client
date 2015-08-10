@@ -23,4 +23,6 @@ trait Rug {
   def variGenos(vari: Variation): Pipe[Iterator[(String, Genotype)]]
 
   def genotype(samp: String, vari: Variation): Pipe[Option[Genotype]]
+
+  def filterVaris(filter: Variation => Boolean): Rug
 }

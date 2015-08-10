@@ -37,14 +37,26 @@ object Chr {
 }
 
 sealed trait Chr {
+  def ==(num: Int): Boolean
+
+  def ==(name: String): Boolean
+
   def toString: String
 }
 
 case class Autosome(num: Int) extends Chr {
   override def toString = "" + num
+
+  override def ==(num: Int): Boolean = num == this.num
+
+  override def ==(name: String): Boolean = false
 }
 
 case class Allosome(name: String) extends Chr {
   override def toString = "" + name
+
+  override def ==(num: Int): Boolean = false
+
+  override def ==(name: String): Boolean = name == this.name
 }
 
