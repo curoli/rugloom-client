@@ -51,7 +51,11 @@ class MockRug(nSs: Int, nVs: Int, sampleIdBase: String = "patient") extends Rug 
     val pos = random.nextInt(65000000) // Approximate range, if all chroms were equal in size
     val genePos = GenoPos(chr, pos)
     val ref = Variation.baseSeq(random.nextInt(Variation.baseSeq.size))
-    val seq = Variation.baseSeq(random.nextInt(Variation.baseSeq.size))
+    val seq = {
+      var seq: String = null
+      while (seq == null || seq == ref) seq = Variation.baseSeq(random.nextInt(Variation.baseSeq.size))
+      seq
+    }
     Variation(genePos, ref, seq)
   }
 
