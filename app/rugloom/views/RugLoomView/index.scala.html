@@ -29,6 +29,8 @@
         .err {
         color : orangered ;
         }
+        #rugLoomConsole {
+        }
         input {
         color : yellow ;
         background : green ;
@@ -86,9 +88,10 @@
                 return consoleInputs.push(entry) - 1;
             }
             function showConsoleEntries() {
-                var entryNodes = d3.select("#rugLoomConsole").selectAll(".consoleEntry").data(consoleEntries);
+                var entryNodes = d3.select("#rugLoomConsoleOut").selectAll(".consoleEntry").data(consoleEntries);
                 entryNodes.enter().append("pre").attr("class", function(d) { return "consoleEntry " + d.kind; })
                 .text(function(d) { return d.text; })
+                getCommandInputNode().node().scrollIntoView();
             }
             function getCommandInputNode() {
                 return d3.select("#commandInput");
@@ -108,6 +111,7 @@
                     commandInput.property("value", "");
                     iHistoryRecall = 0;
                     presentLine = "";
+                    commandInput.node().scrollIntoView();
                 }
             }
             function onKeyDown(event) {
@@ -122,6 +126,7 @@
                         commandInputNode.property("value",
                             consoleInputs[consoleInputs.length - iHistoryRecall].text);
                     }
+                    commandInputNode.node().scrollIntoView();
                 } else if(keyCode == 40) { // down arrow
                     if(iHistoryRecall > 0) {
                         iHistoryRecall--;
@@ -133,6 +138,7 @@
                         commandInputNode.property("value",
                             consoleInputs[consoleInputs.length - iHistoryRecall].text);
                     }
+                    commandInputNode.node().scrollIntoView();
                 }
             }
         </script>
@@ -140,8 +146,10 @@
     <body onload="openSocket()">
         <h1>@title</h1>
         <pre>Hello, this is @title! Enter an expression.</pre>
-        <div id="rugLoomConsole"></div>
-        <input id="commandInput" type="text" size="128" onkeypress="onCommandKeyPress(event);"
-        onkeydown="onKeyDown(event);"/>
+        <div id="rugLoomConsole">
+            <div id="rugLoomConsoleOut"></div>
+            <input id="commandInput" type="text" size="128" onkeypress="onCommandKeyPress(event);"
+            onkeydown="onKeyDown(event);"/>
+        </div>
     </body>
 </html>
