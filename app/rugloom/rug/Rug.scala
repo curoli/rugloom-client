@@ -1,5 +1,6 @@
 package rugloom.rug
 
+import play.api.libs.functional.Variant
 import rugloom.util.test.Test
 
 /**
@@ -27,4 +28,7 @@ trait Rug {
   def genotype(samp: String, vari: Variation): Pipe[Option[Genotype]]
 
   def filterVaris(filter: Test[Variation]): Rug
+
+  def variStats: Pipe[Iterator[VariStats]]
+
 }

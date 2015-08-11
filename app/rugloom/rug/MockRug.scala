@@ -1,6 +1,6 @@
 package rugloom.rug
 
-import rugloom.rug.MockRug.{GenotypePipe, NSampsPipe, NVarisPipe, SampGenosPipe, SampsPipe, VariGenosPipe, VarisPipe}
+import rugloom.rug.MockRug.{VariStatsPipe, GenotypePipe, NSampsPipe, NVarisPipe, SampGenosPipe, SampsPipe, VariGenosPipe, VarisPipe}
 
 import scala.util.Random
 
@@ -56,6 +56,23 @@ object MockRug {
     override def ! : Option[Genotype] = rug.sampleVaris.get((SampleId(samp), vari))
 
     override def toString = "" + rug + ".genotype(" + samp + "," + vari + ")"
+  }
+
+  class VariStatsPipe(rug: MockRug) extends Pipe[Iterator[VariStats]] {
+    override def ! : Iterator[VariStats] = {
+      rug.vs.iterator.map({ vari =>
+        val ns = Array(0, 0, 0)
+        for (samp <- rug.sampleIds) {
+          rug.sampleVaris.get(samp, vari) match {
+            case Some(Genotype(_, zygosity)) => ns(zygosity) += 1
+            case _ => {}
+          }
+        }
+        VariStats(vari, ns(0), ns(1), ns(2))
+      })
+    }
+
+    override def toString = "" + rug + ".variStats"
   }
 
 }
@@ -120,5 +137,7 @@ class MockRug(nSs: Int, nVs: Int, sampleIdBase: String = "patient") extends Rug 
   override def variGenos(vari: Variation): Pipe[Iterator[(String, Genotype)]] = new VariGenosPipe(this, vari)
 
   override def genotype(samp: String, vari: Variation): Pipe[Option[Genotype]] = new GenotypePipe(this, samp, vari)
+
+  override def variStats: Pipe[Iterator[VariStats]] = new VariStatsPipe(this)
 
 }
