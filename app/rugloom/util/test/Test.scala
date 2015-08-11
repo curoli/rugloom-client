@@ -8,10 +8,14 @@ object Test {
 
   implicit class AsTest[T](f: T => Boolean) extends Test[T] {
     override def apply(item: T): Boolean = f(item)
+
+    override def toString = f.toString
   }
 
-  implicit class EqualTest[T](item:T) extends Test[T] {
+  implicit class EqualTest[T](item: T) extends Test[T] {
     override def apply(oi: T): Boolean = item == oi
+
+    override def toString = item.toString
   }
 
 }
@@ -39,7 +43,7 @@ case class OrTest[T](tests: Seq[Test[T]]) extends Test[T] {
     case _ => OrTest(tests :+ test)
   }
 
-  override def toString = tests.mkString("(", "||", ")")
+  override def toString = tests.mkString("(", " || ", ")")
 }
 
 case class AndTest[T](tests: Seq[Test[T]]) extends Test[T] {
@@ -50,11 +54,13 @@ case class AndTest[T](tests: Seq[Test[T]]) extends Test[T] {
     case _ => AndTest(tests :+ test)
   }
 
-  override def toString = tests.mkString("(", "&&", ")")
+  override def toString = tests.mkString("(", " && ", ")")
 }
 
 case class NotTest[T](test: Test[T]) extends Test[T] {
   override def apply(item: T) = !test(item)
 
   override def unary_! = test
+
+  override def toString = "!(" + test + ")"
 }
