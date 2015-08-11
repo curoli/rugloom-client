@@ -2,6 +2,7 @@ package rugloom.rug
 
 import rugloom.rug.Pipe.IteratorFilterPipe
 import rugloom.rug.VariFilterRug.{NVarisPipe, VarisPipe}
+import rugloom.util.test.Test
 
 /**
  * RugLoom - Explorative analysis pipeline prototype
@@ -10,7 +11,7 @@ import rugloom.rug.VariFilterRug.{NVarisPipe, VarisPipe}
 object VariFilterRug {
 
   trait Wrapper extends Rug {
-    def filterVaris(filter: Variation => Boolean): Rug = new VariFilterRug(this, filter)
+    def filterVaris(filter: Test[Variation]): Rug = new VariFilterRug(this, filter)
   }
 
   class NVarisPipe(rug: VariFilterRug) extends Pipe[Int] {

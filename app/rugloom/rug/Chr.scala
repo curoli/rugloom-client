@@ -10,6 +10,9 @@ object Chr {
 
   def apply(name: String): Chr = Allosome(name)
 
+}
+
+object Chrs {
   val chr1 = Chr(1)
   val chr2 = Chr(2)
   val chr3 = Chr(3)

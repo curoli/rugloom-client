@@ -1,5 +1,7 @@
 package rugloom.rug
 
+import rugloom.util.test.Test
+
 /**
  * RugLoom - Explorative analysis pipeline prototype
  * Created by oliverr on 8/6/2015.
@@ -24,5 +26,5 @@ trait Rug {
 
   def genotype(samp: String, vari: Variation): Pipe[Option[Genotype]]
 
-  def filterVaris(filter: Variation => Boolean): Rug
+  def filterVaris(filter: Test[Variation]): Rug
 }

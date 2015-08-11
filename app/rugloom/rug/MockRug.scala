@@ -73,9 +73,9 @@ class MockRug(nSs: Int, nVs: Int, sampleIdBase: String = "patient") extends Rug 
     } else {
       val chanceOfOnX = 0.75 // Roughly, if X and Y were equal in size. Of course, Y is shorter than X.
       if (random.nextDouble < chanceOfOnX) {
-        Chr.chrX
+        Chrs.chrX
       } else {
-        Chr.chrY
+        Chrs.chrY
       }
     }
     val pos = random.nextInt(65000000) // Approximate range, if all chroms were equal in size
@@ -96,7 +96,7 @@ class MockRug(nSs: Int, nVs: Int, sampleIdBase: String = "patient") extends Rug 
       val isMale = males.contains(sampleId)
       val zygosity = if (isMale && vari.chr.isInstanceOf[Allosome]) {
         if (random.nextDouble() < freq) 1 else 0
-      } else if (!isMale && vari.chr == Chr.chrY) {
+      } else if (!isMale && vari.chr == Chrs.chrY) {
         0
       } else {
         (if (random.nextDouble() < freq) 1 else 0) + (if (random.nextDouble() < freq) 1 else 0)

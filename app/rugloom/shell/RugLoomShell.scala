@@ -42,6 +42,9 @@ class RugLoomShell(val listener: ShellOutput.Listener) {
 
   imain.bind("predef", "rugloom.shell.Predef", predef)
   imain.interpret("import rugloom.rug.{Chr, Variation}")
+  imain.interpret("import rugloom.rug.Chrs._")
+  imain.interpret("import rugloom.util.test.Test.{AsTest, EqualTest}")
+  imain.interpret("import rugloom.rug.VariTests._")
   imain.interpret("import predef._")
   imain.interpret("import language.postfixOps")
   stringWriter.getBuffer.setLength(0)
