@@ -12,18 +12,26 @@ object MockRug {
 
   class NSampsPipe(rug: MockRug) extends Pipe[Int] {
     override def ! : Int = rug.sampleIds.size
+
+    override def toString = "" + rug + ".nSamps"
   }
 
   class SampsPipe(rug: MockRug) extends Pipe[Iterator[String]] {
     override def ! : Iterator[String] = rug.sampleIds.iterator.map(_.id)
+
+    override def toString = "" + rug + ".samps"
   }
 
   class NVarisPipe(rug: MockRug) extends Pipe[Int] {
     override def ! : Int = rug.vs.size
+
+    override def toString = "" + rug + ".nVaris"
   }
 
   class VarisPipe(rug: MockRug) extends Pipe[Iterator[Variation]] {
     override def ! : Iterator[Variation] = rug.vs.iterator
+
+    override def toString = "" + rug + ".varis"
   }
 
   class SampGenosPipe(rug: MockRug, samp: String) extends Pipe[Iterator[Genotype]] {
@@ -31,16 +39,23 @@ object MockRug {
       val sampId = SampleId(samp)
       rug.vs.iterator.flatMap(vari => rug.sampleVaris.get((sampId, vari)))
     }
+
+    override def toString = "" + rug + ".sampGenos(" + samp + ")"
   }
 
   class VariGenosPipe(rug: MockRug, vari: Variation) extends Pipe[Iterator[(String, Genotype)]] {
     override def ! : Iterator[(String, Genotype)] = rug.sampleVaris.iterator.collect({
       case ((SampleId(samp), v: Variation), genotype: Genotype) if (v == vari) => (samp, genotype)
     })
+
+    override def toString = "" + rug + ".variGenos(" + vari + ")"
+
   }
 
   class GenotypePipe(rug: MockRug, samp: String, vari: Variation) extends Pipe[Option[Genotype]] {
     override def ! : Option[Genotype] = rug.sampleVaris.get((SampleId(samp), vari))
+
+    override def toString = "" + rug + ".genotype(" + samp + "," + vari + ")"
   }
 
 }

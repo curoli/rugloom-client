@@ -15,10 +15,12 @@ object VariFilterRug {
 
   class NVarisPipe(rug: VariFilterRug) extends Pipe[Int] {
     override def ! : Int = rug.rug.varis.!.count(rug.filter)
+    override def toString = "" + rug + ".nVaris"
   }
 
   class VarisPipe(rug: VariFilterRug) extends Pipe[Iterator[Variation]] {
     override def ! : Iterator[Variation] = rug.rug.varis.!.filter(rug.filter)
+    override def toString = "" + rug + "varis"
   }
 
 }
@@ -41,4 +43,6 @@ class VariFilterRug(val rug: Rug, val filter: Variation => Boolean) extends Rug 
 
   override def variGenos(vari: Variation): Pipe[Iterator[(String, Genotype)]] =
     if (filter(vari)) rug.variGenos(vari) else Pipe.EmptyPipe
+
+  override def toString = "" + rug + ".filterVaris(" + filter + ")"
 }

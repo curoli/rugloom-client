@@ -14,7 +14,7 @@ object Variation {
 }
 
 case class Variation(chr: Chr, pos: Int, ref: String, seq: String) {
-  override def toString = pos + "_" + ref + "_" + seq
+  override def toString = chr + "_" + pos + "_" + ref + "_" + seq
 
   def isSnp: Boolean = ref.length == 1 && seq.length == 1
 
